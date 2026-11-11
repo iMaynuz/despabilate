@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>DESPABILATE</title>
+  <link rel="preload" href="fonts/PressStart2P-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="stage">
+    <canvas id="c" aria-label="Juego DESPABILATE"></canvas>
+    <div id="gameBtns" class="game-btns">
+      <button id="pauseFloat" class="mute-btn" aria-label="Pausa">⏸️</button>
+      <button id="muteFloat" class="mute-btn" data-mute aria-label="Silenciar" aria-pressed="false">🔊</button>
+    </div>
+
+    <!-- Menú principal -->
+    <section id="menu" class="overlay">
+      <div class="panel">
+        <header class="brand">
+          <h1>DESPA<span>BILATE</span></h1>
+          <p class="tag">Cruza las calles sin que te atropellen</p>
+        </header>
+
+        <section class="block">
+          <h3>Elige tu personaje</h3>
+          <div class="chars">
+            <button class="char selected" id="chH" data-char="h" aria-pressed="true">
+              <canvas width="96" height="110"></canvas><span>Hombre</span>
+            </button>
+            <button class="char" id="chM" data-char="m" aria-pressed="false">
+              <canvas width="96" height="110"></canvas><span>Mujer</span>
+            </button>
+          </div>
+        </section>
+
+        <div class="pill">🪙 <b id="menuCoins">L 0</b></div>
+
+        <nav class="actions" aria-label="Acciones">
+          <button id="btnPlay" class="btn primary">Jugar</button>
+          <div class="row">
+            <button id="btnShop" class="btn secondary">🛍️ Tienda</button>
+            <button id="btnCust" class="btn secondary">👕 Personalizar</button>
+          </div>
+          <div class="row">
+            <button id="btnScores" class="btn secondary">🏆 Puntajes</button>
+            <button id="btnSettings" class="btn secondary">⚙️ Configuración</button>
+          </div>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Mundos -->
+    <section id="worlds" class="overlay hidden">
+      <div class="panel">
+        <header class="brand">
+          <h2>Elige un mundo</h2>
+          <p class="tag">Cada mundo es una ciudad de Honduras con sus propios lugares.</p>
+        </header>
+        <div id="worldList" class="worlds scroll"></div>
+        <button id="worldsBack" class="btn secondary full">Volver</button>
+      </div>
+    </section>
+
+    <!-- Puntajes por mundo -->
+    <section id="scores" class="overlay hidden">
+      <div class="panel">
+        <h2>🏆 Puntajes</h2>
+        <div id="scoreBox" class="scroll scores"></div>
+        <button id="scoresBack" class="btn secondary full">Volver</button>
+      </div>
+    </section>
+
+    <!-- Configuración -->
+    <section id="settings" class="overlay hidden">
+      <div class="panel wide">
+        <h2>⚙️ Configuración</h2>
+        <div class="seg" role="tablist" aria-label="Secciones de configuración">
+          <button class="seg-btn sel" data-sec="secSound" role="tab" aria-selected="true">🔊<span>Sonido</span></button>
+          <button class="seg-btn" data-sec="secControls" role="tab" aria-selected="false">🎮<span>Controles</span></button>
+          <button class="seg-btn" data-sec="secHelp" role="tab" aria-selected="false">❓<span>Cómo jugar</span></button>
+          <button class="seg-btn" data-sec="secCredits" role="tab" aria-selected="false">⭐<span>Créditos</span></button>
+        </div>
+
+        <div class="scroll settings-body">
+          <!-- Sonido -->
+          <section id="secSound" class="sec" role="tabpanel">
+            <div class="card">
+              <div class="card-row">
+                <span class="card-ic">🔊</span>
+                <div class="card-txt"><b>Sonido general</b><small>Activa o silencia todo el juego (tecla M)</small></div>
+                <button id="muteSwitch" class="switch" role="switch" aria-checked="true" aria-label="Sonido general"><i></i></button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-row">
+                <span class="card-ic">💥</span>
+                <div class="card-txt"><b>Sonido del juego</b><small>Efectos, tráfico, ciudad y voces</small></div>
+                <span id="volSfxVal" class="val">80%</span>
+              </div>
+              <input id="volSfx" class="range" type="range" min="0" max="100" step="5" aria-label="Volumen del sonido del juego">
+            </div>
+            <div class="card">
+              <div class="card-row">
+                <span class="card-ic">🎵</span>
+                <div class="card-txt"><b>Música</b><small>Música de fondo tipo arcade</small></div>
+                <span id="volMusicVal" class="val">50%</span>
+              </div>
+              <input id="volMusic" class="range" type="range" min="0" max="100" step="5" aria-label="Volumen de la música">
+            </div>
+          </section>
+
+          <!-- Controles -->
+          <section id="secControls" class="sec hidden" role="tabpanel">
+            <div class="card">
+              <b class="card-title">Teclado</b>
+              <div class="keys">
+                <div class="keypad"><kbd class="k-up">↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></div>
+                <span>Flechas o <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> para moverte</span>
+              </div>
+              <div class="kv"><span><kbd>P</kbd> o <kbd>Esc</kbd></span><span>Pausa</span></div>
+              <div class="kv"><span><kbd>M</kbd></span><span>Silenciar</span></div>
+            </div>
+            <div class="card">
+              <b class="card-title">Celular</b>
+              <div class="kv"><span>Deslizar el dedo</span><span>Moverte</span></div>
+              <div class="kv"><span>Tocar la pantalla</span><span>Avanzar</span></div>
+              <div class="kv"><span>Botón ⏸️</span><span>Pausa</span></div>
+            </div>
+          </section>
+
+          <!-- Cómo jugar -->
+          <section id="secHelp" class="sec hidden" role="tabpanel">
+            <p class="note">Llega a la meta de cada nivel sin que te atropellen. Cada nivel es más rápido.</p>
+            <div class="card good-card">
+              <b class="card-title good-t">Te ayudan</b>
+              <ul class="legend">
+                <li><span class="ic good">🍗</span> Pollo Chuco: una vida extra.</li>
+                <li><span class="ic good">🪙</span> Lempira: para comprar en la tienda.</li>
+                <li><span class="ic good">⏱️</span> Detiene el tiempo por 1 segundo.</li>
+                <li><span class="ic good">👻</span> Te hace invisible por 1 segundo.</li>
+                <li><span class="ic good"><span class="x2">x2</span></span> Duplica el bonus al terminar el nivel.</li>
+                <li><span class="ic good">😇</span> Ángel de la guarda: nada te toca en todo el nivel. Es muy raro.</li>
+              </ul>
+            </div>
+            <div class="card bad-card">
+              <b class="card-title bad-t">Te perjudican</b>
+              <ul class="legend">
+                <li><span class="ic bad">☕</span> Granita de café: te da diarrea y corres más rápido por 1 segundo.</li>
+                <li><span class="ic bad">🍾</span> Pachita: te marea y voltea los controles por 1 segundo.</li>
+                <li><span class="ic bad">🦹</span> Ladrón en la mediana: te roba las lempiras del nivel. Si no tienes, se lleva un Pollo Chuco.</li>
+                <li><span class="ic bad">🚨</span> Sirenas: ambulancias, bomberos y policías pasan muy rápido.</li>
+              </ul>
+            </div>
+            <p class="note">El tiempo detenido y la invisibilidad se reemplazan entre sí. El Pollo Chuco, el x2 y el ángel funcionan aparte.</p>
+          </section>
+
+          <!-- Créditos -->
+          <section id="secCredits" class="sec hidden" role="tabpanel">
+            <div class="card credits">
+              <h1 class="credits-title">DESPA<span>BILATE</span></h1>
+              <span id="gameVersion" class="version"></span>
+              <div class="credit"><small>Idea, diseño y dirección</small><b>Maynor Morales</b></div>
+              <div class="credit"><small>Programación con inteligencia artificial</small><b>Kiro</b><span id="aiModel" class="credit-sub"></span></div>
+              <div class="credit"><small>Fuente arcade</small><b>Press Start 2P · CodeMan38</b><span class="credit-sub">Licencia SIL Open Font</span></div>
+              <p class="note center">Hecho en Honduras · Mundo 1: San Pedro Sula</p>
+            </div>
+          </section>
+        </div>
+
+        <button id="settingsBack" class="btn secondary full">Volver</button>
+      </div>
+    </section>
+
+    <!-- Pausa -->
+    <section id="pauseMenu" class="overlay hidden pause" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+      <div class="panel narrow">
+        <h2 id="pauseTitle">⏸️ Pausa</h2>
+        <p id="pauseInfo" class="tag"></p>
+        <div class="actions">
+          <button id="pResume" class="btn primary">▶️ Continuar</button>
+          <button id="pRestart" class="btn secondary">🔄 Reiniciar nivel</button>
+          <button id="pMenu" class="btn secondary">🏠 Salir al menú</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tienda -->
+    <section id="shop" class="overlay hidden">
+      <div class="panel wide">
+        <header class="bar">
+          <h2>🛍️ Tienda</h2>
+          <div class="pill">🪙 <b id="shopCoins">L 0</b></div>
+        </header>
+        <div class="tabs" id="shopTabs" role="tablist"></div>
+        <div class="grid scroll" id="shopGrid"></div>
+        <button id="shopBack" class="btn secondary full">Volver</button>
+      </div>
+    </section>
+
+    <!-- Personalizar -->
+    <section id="custom" class="overlay hidden">
+      <div class="panel wide">
+        <header class="bar">
+          <h2>👕 Personalizar</h2>
+        </header>
+        <div class="custom-top">
+          <canvas id="custPrev" width="160" height="210" aria-label="Vista previa del personaje"></canvas>
+          <div class="genderbtns">
+            <button id="custH" class="tab sel">Hombre</button>
+            <button id="custM" class="tab">Mujer</button>
+          </div>
+        </div>
+        <div class="tabs" id="custTabs" role="tablist"></div>
+        <div class="grid scroll" id="custGrid"></div>
+        <button id="custBack" class="btn secondary full">Volver</button>
+      </div>
+    </section>
+
+    <!-- Fin de nivel -->
+    <section id="levelEnd" class="overlay hidden">
+      <div class="panel">
+        <h2 id="leTitle"></h2>
+        <figure class="le-fig">
+          <canvas id="leImg" width="300" height="110" aria-describedby="leImgLabel"></canvas>
+          <figcaption id="leImgLabel"></figcaption>
+        </figure>
+        <div id="leInfo" class="info"></div>
+        <button id="btnNext" class="btn primary full">Siguiente nivel</button>
+      </div>
+    </section>
+
+    <!-- Fin de partida -->
+    <section id="endGame" class="overlay hidden">
+      <div class="panel">
+        <h2 id="egTitle"></h2>
+        <div id="egInfo" class="info"></div>
+        <label class="namelabel">Tu nombre para el ranking
+          <input id="nameIn" type="text" maxlength="14" placeholder="Jugador" autocomplete="off">
+        </label>
+        <div class="row">
+          <button id="btnAgain" class="btn primary">Jugar de nuevo</button>
+          <button id="btnMenu" class="btn secondary">Menú</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Confirmación -->
+    <section id="modal" class="overlay hidden modal" role="dialog" aria-modal="true">
+      <div class="panel">
+        <p id="modalTxt"></p>
+        <div class="row">
+          <button id="modalYes" class="btn primary">Sí</button>
+          <button id="modalNo" class="btn secondary">No</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="dpad" aria-label="Controles táctiles">
+    <button data-dir="up" aria-label="Arriba">▲</button>
+    <div>
+      <button data-dir="left" aria-label="Izquierda">◀</button>
+      <button data-dir="down" aria-label="Abajo">▼</button>
+      <button data-dir="right" aria-label="Derecha">▶</button>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/vehicles.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
