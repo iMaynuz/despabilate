@@ -365,7 +365,6 @@ function showSettings() {
   ['volSfx', 'volMusic'].forEach(id => { paintRange($(id)); $(id + 'Val').textContent = $(id).value + '%'; });
   $('muteSwitch').setAttribute('aria-checked', String(!muted));
   $('gameVersion').textContent = `Versión ${GAME_VERSION}`;
-  $('aiModel').textContent = AI_CREDIT;
 }
 document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => showSection(b.dataset.sec)));
 $('btnSettings').addEventListener('click', () => { showSettings(); showSection('secSound'); });

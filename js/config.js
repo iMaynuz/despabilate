@@ -115,7 +115,6 @@ const THIEF_LINES = ['¡Pilas con el phone, allí mi dog!', '¡Ya te la sabés!'
 
 // ---------- Créditos ----------
 const GAME_VERSION = 'v1.5.1';
-const AI_CREDIT = 'Modelo: Auto (seleccionado automáticamente por Kiro)';
 const LINES = {
   lifeLost: '¡Por la gran pucha!',
   gameOver: '¡Ya te llevó la gran puerca!',

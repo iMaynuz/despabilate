@@ -7,7 +7,7 @@ Juego 2D arcade estilo Crossy Road ambientado en Honduras: cruza las calles sin 
 | **Jugar** | https://imaynuz.github.io/despabilate/ |
 | **Repositorio** | https://github.com/iMaynuz/despabilate |
 | **Idea, diseño y dirección** | Maynor Morales |
-| **Programación con IA** | Kiro |
+| **Programación** | Hecho con IA |
 | **Tecnología** | HTML5 Canvas, CSS y JavaScript, sin dependencias ni servidor |
 | **Peso total** | Unos 300 KB, incluida la fuente |
 | **Costo de hosting** | Gratis (GitHub Pages, repositorio público) |
