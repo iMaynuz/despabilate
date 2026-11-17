@@ -9,6 +9,9 @@ const GOAL_ROW = 2, MEDIAN = 8, START_ROW = 14, START_COL = 4;
 const ROAD_ROWS = [3, 4, 5, 6, 7, 9, 10, 11, 12, 13];
 const MAX_LIVES = 5;
 const HOP = 0.11;                          // segundos por salto
+const RESPAWN_SHIELD = 0.8;                // protección al reaparecer; se pierde al dar el primer paso
+const INPUT_BUFFER = 0.25;                 // un toque hecho durante un salto se guarda este tiempo
+const SWIPE_PX = 18;                       // distancia del dedo para contar como deslizamiento
 const FX_TIME = 1;                         // duración de poderes y desventajas (segundos)
 const SAVE_KEY = 'desp_save';
 
@@ -111,7 +114,7 @@ const SHOUTS = ['Maheco', 'Terminal', 'Vacío', 'Buzo', 'Vaya vaya'];
 const THIEF_LINES = ['¡Pilas con el phone, allí mi dog!', '¡Ya te la sabés!'];
 
 // ---------- Créditos ----------
-const GAME_VERSION = 'v1.5.0';
+const GAME_VERSION = 'v1.5.1';
 const AI_CREDIT = 'Modelo: Auto (seleccionado automáticamente por Kiro)';
 const LINES = {
   lifeLost: '¡Por la gran pucha!',

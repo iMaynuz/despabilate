@@ -78,7 +78,7 @@ function chooseBlocked(L) {
   } else cols.sort(() => Math.random() - 0.5).slice(0, 3).forEach(c => set.add(c + ',' + MEDIAN));
   return set;
 }
-function resetPlayer() { G.p = { gx: START_COL, gy: START_ROW, tx: START_COL, ty: START_ROW, t: 0, moving: false }; }
+function resetPlayer() { G.p = { gx: START_COL, gy: START_ROW, tx: START_COL, ty: START_ROW, t: 0, moving: false }; G.queued = null; }
 
 function loadLevel(i) {
   const L = LEVELS[i];
@@ -106,7 +106,6 @@ function loadLevel(i) {
   if (Math.random() < ANGEL.chance) G.pickups.push(Object.assign(free(), { type: 'angel', got: false }));   // muy raro
   for (let k = 0; k < COINS_PER_LEVEL(i); k++) G.coins.push(Object.assign(free(), { got: false }));
   G.best = START_ROW; G.invulT = 0; G.deadT = 0; G.animT = 0; G.introT = 0;
-  G.startScore = G.score; G.startLives = G.lives;
   resetPlayer();
   particles = []; toasts = [];
 }
@@ -127,11 +126,14 @@ function stepTo(dx, dy) {
   const p = G.p;
   if (p.moving || !canStep(p.gx + dx, p.gy + dy)) return false;
   p.tx = p.gx + dx; p.ty = p.gy + dy; p.t = 0; p.moving = true; G.lastDir = [dx, dy];
+  G.invulT = 0;                                            // la protección termina al dar un paso
   sHop(); return true;
 }
 function tryMove(dx, dy) {
   if (S !== 'playing') return;
   if (G.fx.drunk > 0) { dx = -dx; dy = -dy; }             // pachita: controles al revés
+  // Si el personaje está en pleno salto, el toque se guarda y se ejecuta al aterrizar
+  if (G.p.moving) { G.queued = [dx, dy]; G.queuedT = INPUT_BUFFER; return; }
   stepTo(dx, dy);
 }
 
@@ -158,30 +160,33 @@ function pauseGame() {
   $('pauseMenu').classList.remove('hidden'); $('pResume').focus();
 }
 function resumeGame() { $('pauseMenu').classList.add('hidden'); S = prevS; }
-// Reinicia el nivel actual: devuelve vidas, puntos y lempiras a como estaban al empezarlo
-function restartLevel() {
-  $('pauseMenu').classList.add('hidden');
-  SAVE.coins = Math.max(0, SAVE.coins - G.lvlCoins); G.runCoins -= G.lvlCoins; persist();
-  G.score = G.startScore; G.lives = G.startLives;
-  loadLevel(G.lvl); S = 'intro';
-}
 $('pResume').addEventListener('click', resumeGame);
-$('pRestart').addEventListener('click', restartLevel);
 $('pMenu').addEventListener('click', showMenu);
 $('pauseFloat').addEventListener('click', e => { e.currentTarget.blur(); if (S === 'playing' || S === 'intro') pauseGame(); });
 document.querySelectorAll('#dpad button').forEach(b => {
   const map = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-  b.addEventListener('pointerdown', e => { e.preventDefault(); tryMove(...map[b.dataset.dir]); });
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('on'); tryMove(...map[b.dataset.dir]); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => b.addEventListener(ev, () => b.classList.remove('on')));
+  b.addEventListener('contextmenu', e => e.preventDefault());
 });
-let touch = null;
-cv.addEventListener('touchstart', e => { const t = e.changedTouches[0]; touch = { x: t.clientX, y: t.clientY }; }, { passive: true });
-cv.addEventListener('touchend', e => {
-  if (!touch) return;
-  const t = e.changedTouches[0], dx = t.clientX - touch.x, dy = t.clientY - touch.y; touch = null;
-  if (Math.abs(dx) < 15 && Math.abs(dy) < 15) tryMove(0, -1);
-  else if (Math.abs(dx) > Math.abs(dy)) tryMove(dx > 0 ? 1 : -1, 0);
-  else tryMove(0, dy > 0 ? 1 : -1);
+let touchSt = null;
+const swipeMove = (dx, dy) => Math.abs(dx) > Math.abs(dy) ? tryMove(dx > 0 ? 1 : -1, 0) : tryMove(0, dy > 0 ? 1 : -1);
+const ownTouch = e => touchSt && [...e.changedTouches].find(t => t.identifier === touchSt.id);
+cv.addEventListener('touchstart', e => { const t = e.changedTouches[0]; touchSt = { id: t.identifier, x: t.clientX, y: t.clientY, fired: false }; }, { passive: true });
+cv.addEventListener('touchmove', e => {
+  const t = ownTouch(e); if (!t || touchSt.fired) return;
+  const dx = t.clientX - touchSt.x, dy = t.clientY - touchSt.y;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) >= SWIPE_PX) { touchSt.fired = true; swipeMove(dx, dy); }
 }, { passive: true });
+cv.addEventListener('touchend', e => {
+  const t = ownTouch(e); if (!t) return;
+  if (!touchSt.fired) {
+    const dx = t.clientX - touchSt.x, dy = t.clientY - touchSt.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_PX) tryMove(0, -1); else swipeMove(dx, dy);
+  }
+  touchSt = null;
+}, { passive: true });
+cv.addEventListener('touchcancel', () => { touchSt = null; }, { passive: true });
 
 // ---------- Menú, mundos, tienda y personalización ----------
 function drawCards() {
@@ -443,7 +448,7 @@ function loseLife() {
   const p = playerPos(); burst(p.x + T / 2, p.y + T / 2, 18, ['#ff6b6b', '#ffd43b', '#fff'], 180, 400);
   if (G.lives > 0) speak(LINES.lifeLost, { rate: 1.2, pitch: 0.55 });
 }
-function respawn() { resetPlayer(); G.invulT = 2; S = 'playing'; }
+function respawn() { resetPlayer(); G.invulT = RESPAWN_SHIELD; S = 'playing'; }
 function beginLose() { S = 'lose'; G.animT = 0; sLose(); speak(LINES.gameOver, { rate: 1.1, pitch: 0.5 }); }
 
 function moveVehicles(dt) {
@@ -527,7 +532,7 @@ function rob() {
   if (G.lvlCoins > 0) {
     const n = G.lvlCoins;
     G.lvlCoins = 0; G.runCoins -= n; SAVE.coins = Math.max(0, SAVE.coins - n); persist();
-    toast(`¡Te robó ${money(n)}!`, '#ff6b6b', true); shake = 0.3; G.invulT = 1;
+    toast(`¡Te robó ${money(n)}!`, '#ff6b6b', true); shake = 0.3; G.invulT = RESPAWN_SHIELD;
   } else {
     toast('¡Te robó un Pollo Chuco!', '#ff6b6b', true);
     loseLife();
@@ -571,8 +576,12 @@ function update(dt) {
     const p = G.p;
     if (p.moving) {
       p.t += dt / (G.fx.cafe > 0 ? HOP * 0.55 : HOP);
-      if (p.t >= 1) { p.moving = false; p.gx = p.tx; p.gy = p.ty; p.t = 0; onArrive(); }
+      if (p.t >= 1) {
+        p.moving = false; p.gx = p.tx; p.gy = p.ty; p.t = 0; onArrive();
+        if (S === 'playing' && G.queued) { const q = G.queued; G.queued = null; stepTo(...q); }
+      }
     }
+    if (G.queued && (G.queuedT -= dt) <= 0) G.queued = null;
     if (S === 'playing' && G.fx.invis <= 0 && !G.fx.angel && G.invulT <= 0 && collides()) { toast(LINES.lifeLost, '#ff6b6b', true); loseLife(); }
     if (S === 'playing' && G.fx.cafe > 0 && Math.random() < 0.5) {   // nubecitas de la diarrea
       const pp = playerPos();

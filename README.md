@@ -1,4 +1,4 @@
-# DESPABILATE · v1.5.0
+# DESPABILATE · v1.5.1
 
 Juego 2D arcade estilo Crossy Road ambientado en Honduras: cruza las calles sin que te atropelle un taxi, un microbús o un bus.
 
@@ -123,7 +123,10 @@ El tiempo detenido y la invisibilidad se reemplazan entre sí. El Pollo Chuco, e
 - **Menú:** Jugar, Tienda, Personalizar, Puntajes y Configuración.
 - **Configuración:** pestañas de Sonido, Controles, Cómo jugar y Créditos.
 - **Puntajes:** se separan por mundo y muestran el nivel alcanzado.
-- **Pausa:** Continuar, Reiniciar nivel y Salir al menú.
+- **Pausa:** Continuar y Salir al menú.
+- **Al perder una vida:** reapareces con 0.8 segundos de protección, que se pierde en cuanto das el primer paso.
+- **Celular:** flechas grandes en forma de cruz. Deslizar responde apenas mueves el dedo, y un toque hecho durante un salto se guarda para el siguiente movimiento.
+- **Ícono:** el personaje cruzando un paso de cebra (carpeta icons/).
 - **Controles:** teclado (flechas o WASD, P para pausar, M para silenciar), deslizar el dedo o botones en pantalla.
 - **Pantalla:** sin barras de desplazamiento. El título usa la fuente arcade Press Start 2P (licencia SIL OFL).
 
@@ -136,6 +139,7 @@ despabilate/
 ├── index.html          Pantallas y menús
 ├── style.css           Estilos
 ├── fonts/              Press Start 2P + licencia OFL
+├── icons/              Ícono del juego (pestaña, celular y app)
 └── js/
     ├── config.js       Mundos, niveles, dificultad, premios, frases, versión
     ├── core.js         Utilidades y guardado
